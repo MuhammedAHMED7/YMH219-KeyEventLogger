@@ -1,0 +1,15 @@
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.log
+*.txt
+*.wav
+*.env
+*.pfx
+.vscode/
+models/
+training/
+local-data/
+
