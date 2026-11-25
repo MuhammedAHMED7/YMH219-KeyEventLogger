@@ -2,7 +2,7 @@ using System.Drawing;
 
 namespace KeyEventLogger;
 
-internal static class Layout
+internal static class StudioUi
 {
     public static readonly Color Ink = ColorTranslator.FromHtml("#172B36");
     public static readonly Color Accent = ColorTranslator.FromHtml("#51417E");

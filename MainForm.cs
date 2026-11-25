@@ -5,22 +5,22 @@ public sealed class MainForm : Form
     readonly KeyJournal journal = new();
     readonly ListBox events = new() { Dock=DockStyle.Fill, BorderStyle=BorderStyle.None,
         Font=new Font("Consolas",12), IntegralHeight=false, HorizontalScrollbar=true };
-    readonly Label status=Layout.Status();
+    readonly Label status=StudioUi.Status();
     readonly Button start,stop;
     public MainForm()
     {
-        Layout.Window(this,"Key Event Studio  /  Klavye olayları");
+        StudioUi.Window(this,"Key Event Studio  /  Klavye olayları");
         KeyPreview=true;
-        var bar=Layout.Bar();
-        start=Layout.Button("Başlat",(_,_)=>SetRecording(true));
-        stop=Layout.Button("Durdur",(_,_)=>SetRecording(false));
-        bar.Controls.AddRange([start,stop,Layout.Button("Temizle",(_,_)=>{journal.Clear();events.Items.Clear();RefreshStatus();}),
-            Layout.Button("TXT olarak kaydet",(_,_)=>Save())]);
+        var bar=StudioUi.Bar();
+        start=StudioUi.Button("Başlat",(_,_)=>SetRecording(true));
+        stop=StudioUi.Button("Durdur",(_,_)=>SetRecording(false));
+        bar.Controls.AddRange([start,stop,StudioUi.Button("Temizle",(_,_)=>{journal.Clear();events.Items.Clear();RefreshStatus();}),
+            StudioUi.Button("TXT olarak kaydet",(_,_)=>Save())]);
         var heading=new Label { Text="TARİH VE SAAT                          OLAY                TUŞ", Dock=DockStyle.Top,
             Height=39, Font=new Font("Consolas",10,FontStyle.Bold), Padding=new Padding(16,10,0,0) };
         var panel=new Panel { Dock=DockStyle.Fill, Padding=new Padding(16,9,16,12),BackColor=Color.White };
         panel.Controls.Add(events);
-        Controls.AddRange([panel,heading,bar,Layout.Header("Key Event Studio"),status]);
+        Controls.AddRange([panel,heading,bar,StudioUi.Header("Key Event Studio"),status]);
         KeyDown+=(_,e)=>HandleKey(e,true);
         KeyUp+=(_,e)=>HandleKey(e,false);
         Deactivate+=(_,_)=>journal.ReleaseFocus();
