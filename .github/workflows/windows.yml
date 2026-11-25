@@ -1,0 +1,28 @@
+name: Windows doğrulaması
+on: [push, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  release:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Release derlemesi
+        run: dotnet build KeyEventLogger.csproj -c Release --nologo
+      - name: Uygulama açılışı
+        shell: pwsh
+        run: |
+          $exe = Resolve-Path 'bin/Release/net10.0-windows/KeyEventLogger.exe'
+          $app = Start-Process -FilePath $exe -WindowStyle Hidden -PassThru
+          try {
+            if (!$app.WaitForInputIdle(20000) -or $app.HasExited) {
+              throw 'Uygulama pencere olay döngüsüne giremedi.'
+            }
+          } finally {
+            if (!$app.HasExited) { $app.Kill(); $app.WaitForExit() }
+            $app.Dispose()
+          }
