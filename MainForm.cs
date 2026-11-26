@@ -5,6 +5,7 @@ public sealed class MainForm : Form
     readonly KeyJournal journal = new();
     readonly ListBox events = new() { Dock=DockStyle.Fill, BorderStyle=BorderStyle.None,
         Font=new Font("Consolas",12), IntegralHeight=false, HorizontalScrollbar=true };
+    readonly ComboBox filter = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 135, AccessibleName = "Olay filtresi" };
     readonly Label status=StudioUi.Status();
     readonly Button start,stop;
     public MainForm()
@@ -16,6 +17,11 @@ public sealed class MainForm : Form
         stop=StudioUi.Button("Durdur",(_,_)=>SetRecording(false));
         bar.Controls.AddRange([start,stop,StudioUi.Button("Temizle",(_,_)=>{journal.Clear();events.Items.Clear();RefreshStatus();}),
             StudioUi.Button("TXT olarak kaydet",(_,_)=>Save())]);
+        filter.Items.AddRange(["Tüm olaylar", "Basılan tuşlar", "Bırakılan tuşlar"]);
+        filter.SelectedIndex = 0;
+        filter.SelectedIndexChanged += (_, _) => RebuildList();
+        bar.Controls.Add(StudioUi.Tag("Göster"));
+        bar.Controls.Add(filter);
         var heading=new Label { Text="TARİH VE SAAT                          OLAY                TUŞ", Dock=DockStyle.Top,
             Height=39, Font=new Font("Consolas",10,FontStyle.Bold), Padding=new Padding(16,10,0,0) };
         var panel=new Panel { Dock=DockStyle.Fill, Padding=new Padding(16,9,16,12),BackColor=Color.White };
@@ -37,14 +43,40 @@ public sealed class MainForm : Form
     void HandleKey(KeyEventArgs e,bool pressed)
     {
         if(!ContainsFocus || journal.Record(e.KeyCode,pressed) is not {} entry) return;
-        events.Items.Add(entry.ToString()); events.TopIndex=events.Items.Count-1; RefreshStatus();
+        if (VisibleEntry(entry))
+        {
+            events.Items.Add(entry.ToString());
+            events.TopIndex = events.Items.Count - 1;
+        }
+        RefreshStatus();
     }
-    void RefreshStatus() => status.Text = $"{(journal.Recording ? "●  Kayıt açık" : "○  Kayıt durdu")}     |     {journal.Count} basış     ·     {journal.Entries.Count} olay";
+    bool VisibleEntry(KeyEntry entry) => filter.SelectedIndex switch
+    {
+        1 => entry.Pressed,
+        2 => !entry.Pressed,
+        _ => true
+    };
+
+    void RebuildList()
+    {
+        events.BeginUpdate();
+        try
+        {
+            events.Items.Clear();
+            foreach (var entry in journal.Entries.Where(VisibleEntry))
+                events.Items.Add(entry.ToString());
+            if (events.Items.Count > 0) events.TopIndex = events.Items.Count - 1;
+        }
+        finally { events.EndUpdate(); }
+        RefreshStatus();
+    }
+
+    void RefreshStatus() => status.Text = $"{(journal.Recording ? "●  Kayıt açık" : "○  Kayıt durdu")}     |     {journal.Count} basış     ·     {journal.Entries.Count} olay     ·     {events.Items.Count} gösteriliyor";
     void Save()
     {
         using var dlg=new SaveFileDialog {Filter="Metin dosyası (*.txt)|*.txt",FileName="tus-olaylari.txt"};
         if(dlg.ShowDialog(this)!=DialogResult.OK)return;
-        try {journal.Export(dlg.FileName); status.Text="Kaydedildi  ·  "+Path.GetFileName(dlg.FileName);}
+        try {journal.Export(dlg.FileName); RefreshStatus(); status.Text += "   |   Tüm kayıtlar kaydedildi";}
         catch(Exception ex) when(ex is IOException or UnauthorizedAccessException) {status.Text="Dosya yazılamadı  ·  "+ex.Message;}
     }
 }
