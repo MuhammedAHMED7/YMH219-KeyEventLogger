@@ -28,6 +28,8 @@ Visual Studio'da .NET 10 destekli bir sürüm ve **.NET masaüstü geliştirme**
 2. `BASILDI` ve `BIRAKILDI` satırlarının tarihini, milisaniyesini ve tuş adını karşılaştırın. Basış sayacı yalnız ilk `KeyDown` olayında artar.
 3. **Durdur** ile kaydı kapatın. **TXT olarak kaydet** ile hedefi seçin. **Temizle** listedeki kayıtları kaldırır.
 
+Göster listesinden basışları, bırakmaları veya tüm olayları seçebilirsiniz. Alt çubuk toplam ve görünen olay sayılarını ayrı gösterir. TXT çıktısı filtre seçimine bakılmaksızın tüm oturumu içerir.
+
 ## Sınıflar ve sorumluluklar
 
 `KeyJournal` basılı tuş kümesini, olay listesini, sayacı ve dışa aktarmayı yönetir. `MainForm` odağın kaybında basılı tuş kümesini sıfırlar. Başka bir pencerede bırakılan tuş için bir bırakma olayı üretilmez.
@@ -36,7 +38,7 @@ Visual Studio'da .NET 10 destekli bir sürüm ve **.NET masaüstü geliştirme**
 
 ![Kayıt durdurulmuş ve liste boş](docs/ekran-1.png)
 
-![İki basışın dört olayı](docs/ekran-2.png)
+![İki basıştan sonra bırakma filtresinde iki satır](docs/ekran-2.png)
 
 ## Test ve bilinen sınırlamalar
 
